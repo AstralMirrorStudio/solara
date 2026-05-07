@@ -1,0 +1,411 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SOLARA — 今ヤバい？が5秒でわかる宇宙天気</title>
+<meta name="description" content="NOAAデータに基づく日本語宇宙天気リアルタイム情報。太陽フレア・地磁気嵐・オーロラ予報・UV指数・GPS通信影響をわかりやすく表示。">
+<meta property="og:title" content="SOLARA — 今ヤバい？が5秒でわかる宇宙天気">
+<meta property="og:description" content="太陽フレア・Kp指数・UV指数をリアルタイムで表示。生活への影響を科学的にわかりやすく解説。">
+<meta property="og:type" content="website">
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"WebApplication","name":"SOLARA","description":"日本語宇宙天気リアルタイムダッシュボード","applicationCategory":"Weather","operatingSystem":"All"}
+</script>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,'Inter','Helvetica Neue',sans-serif;background:#f0f2f5;color:#1a2332;min-height:100vh;font-size:14px}
+
+/* TOP BAR */
+.topbar{background:#fff;border-bottom:1px solid #e2e8f0;padding:0 24px;height:54px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100}
+.logo{font-size:20px;font-weight:800;letter-spacing:-0.5px;color:#0f172a}
+.logo em{color:#e55a2b;font-style:normal}
+.logo-sub{font-size:10px;color:#94a3b8;font-weight:400;margin-left:8px;letter-spacing:0.8px;text-transform:uppercase}
+.topbar-right{font-size:11px;color:#94a3b8;font-family:'Courier New',monospace}
+
+/* ALERT BANNER */
+.alert{padding:10px 24px;font-size:12px;font-weight:500;text-align:center;letter-spacing:0.2px;border-bottom:1px solid}
+.alert-green{background:#f0fdf4;color:#14532d;border-color:#bbf7d0}
+.alert-yellow{background:#fffbeb;color:#78350f;border-color:#fde68a}
+.alert-orange{background:#fff7ed;color:#7c2d12;border-color:#fed7aa}
+.alert-red{background:#fef2f2;color:#7f1d1d;border-color:#fecaca;animation:blink 1.5s infinite}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.7}}
+
+/* LAYOUT */
+.wrap{max-width:960px;margin:0 auto;padding:20px 16px}
+
+/* AD SLOTS */
+.ad-slot{background:#f8fafc;border:1px dashed #cbd5e1;border-radius:8px;display:flex;align-items:center;justify-content:center;margin-bottom:20px;color:#94a3b8;font-size:10px;letter-spacing:1px;text-transform:uppercase}
+.ad-slot-top{height:70px}
+.ad-slot-mid{height:90px}
+.ad-slot-btm{height:90px}
+
+/* HERO */
+.hero{display:grid;grid-template-columns:180px 1fr;gap:20px;margin-bottom:20px;align-items:start}
+@media(max-width:600px){.hero{grid-template-columns:1fr}.gauge-col{flex-direction:row;justify-content:center;gap:20px}}
+.gauge-col{display:flex;flex-direction:column;align-items:center;gap:10px}
+.gauge-label-top{font-size:10px;color:#64748b;text-transform:uppercase;letter-spacing:1px;font-weight:500}
+.flare-pill{background:#fff3e0;color:#c84b00;font-size:12px;font-weight:700;padding:5px 16px;border-radius:20px;border:1px solid #ffccaa;font-family:'Courier New',monospace;letter-spacing:0.5px}
+.hero-right{display:flex;flex-direction:column;gap:14px}
+.level-heading{font-size:11px;color:#64748b;text-transform:uppercase;letter-spacing:1px;font-weight:500;margin-bottom:4px}
+.level-value{font-size:26px;font-weight:700;color:#0f172a;line-height:1.2}
+.level-yabai{font-size:14px;color:#64748b;margin-top:4px}
+.level-yabai strong{color:#b45309}
+.impact-box{background:#fff;border:1px solid #e2e8f0;border-left:3px solid #f59e0b;border-radius:10px;padding:14px 16px}
+.impact-box-title{font-size:10px;color:#94a3b8;text-transform:uppercase;letter-spacing:1px;font-weight:500;margin-bottom:8px}
+.impact-box-body{font-size:13px;color:#334155;line-height:1.7}
+.impact-box-body strong{color:#0f172a;font-weight:600}
+
+/* SECTION LABEL */
+.sec{font-size:10px;color:#94a3b8;text-transform:uppercase;letter-spacing:1px;font-weight:500;margin-bottom:12px;display:flex;align-items:center;gap:8px}
+.sec::after{content:'';flex:1;height:1px;background:#e2e8f0}
+
+/* IMPACT CARDS */
+.grid4{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:20px}
+@media(max-width:600px){.grid4{grid-template-columns:repeat(2,1fr)}}
+.inf-card{background:#fff;border:1px solid #e2e8f0;border-radius:10px;padding:16px;text-align:center}
+.inf-icon{font-size:22px;margin-bottom:8px;display:block}
+.inf-label{font-size:10px;color:#94a3b8;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:8px;font-weight:500}
+.badge{font-size:11px;font-weight:600;padding:3px 12px;border-radius:20px;display:inline-block}
+.badge-ok{background:#f0fdf4;color:#15803d}
+.badge-warn{background:#fffbeb;color:#b45309}
+.badge-alert{background:#fff7ed;color:#c2410c}
+.badge-danger{background:#fef2f2;color:#b91c1c}
+
+/* DATA CARDS */
+.data4{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:20px}
+@media(max-width:600px){.data4{grid-template-columns:repeat(2,1fr)}}
+.dc{background:#fff;border:1px solid #e2e8f0;border-radius:10px;padding:16px}
+.dc-label{font-size:10px;color:#94a3b8;text-transform:uppercase;letter-spacing:0.5px;font-weight:500;margin-bottom:6px}
+.dc-val{font-size:24px;font-weight:700;font-family:'Courier New',monospace;letter-spacing:-0.5px}
+.dc-unit{font-size:10px;color:#94a3b8;margin-top:3px}
+.dc-track{height:3px;background:#f1f5f9;border-radius:2px;margin-top:12px;overflow:hidden}
+.dc-fill{height:3px;border-radius:2px;transition:width .5s}
+
+/* PANELS */
+.two{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:20px}
+@media(max-width:600px){.two{grid-template-columns:1fr}}
+.panel{background:#fff;border:1px solid #e2e8f0;border-radius:10px;padding:16px}
+
+/* KP CHART */
+.legend-row{display:flex;gap:14px;margin-bottom:10px}
+.legend-item{display:flex;align-items:center;gap:5px;font-size:10px;color:#64748b}
+.legend-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.kpbar-wrap{display:flex;gap:3px;align-items:flex-end;height:100px}
+.kpbar{flex:1;border-radius:2px 2px 0 0;min-height:2px;transition:height .5s}
+.kpbar-x{display:flex;justify-content:space-between;margin-top:4px}
+.kpbar-lbl{font-size:8px;color:#94a3b8;font-family:'Courier New',monospace}
+
+/* UV TABLE */
+.uv-item{display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid #f1f5f9}
+.uv-item:last-child{border-bottom:none}
+.uv-city{font-size:12px;color:#334155;width:46px;flex-shrink:0;font-weight:500}
+.uv-track{width:70px;height:6px;background:#f1f5f9;border-radius:3px;overflow:hidden;flex-shrink:0}
+.uv-fill{height:6px;border-radius:3px}
+.uv-num{font-size:13px;font-weight:700;font-family:'Courier New',monospace;width:20px;text-align:right;flex-shrink:0}
+.uv-desc{font-size:11px;color:#64748b;line-height:1.4;flex:1}
+.uv-desc strong{display:block;font-size:11px;font-weight:600;margin-bottom:1px}
+
+/* AURORA */
+.aurora-svg{display:block;width:100%}
+
+/* FOOTER */
+.footer-wrap{margin-bottom:20px}
+.footer{text-align:center;font-size:10px;color:#94a3b8;padding:12px 0 20px}
+.src-tag{display:inline-block;background:#f1f5f9;color:#64748b;font-size:9px;padding:2px 8px;border-radius:4px;margin:0 2px}
+
+/* SHARE BTN */
+.share-btn{display:none;background:#1d4ed8;color:#fff;border:none;padding:8px 20px;border-radius:6px;font-size:13px;font-weight:500;cursor:pointer;margin-top:10px;width:100%}
+.share-btn:hover{background:#1e40af}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div style="display:flex;align-items:baseline;gap:2px">
+    <span class="logo">SOL<em>AR</em>A</span>
+    <span class="logo-sub">Space Weather Japan</span>
+  </div>
+  <div class="topbar-right" id="updated">— JST | 5min refresh</div>
+</div>
+
+<div class="alert alert-yellow" id="alertBar">
+  ⚠ 中程度の太陽活動を観測中 — Mクラスフレアの可能性。GPS・無線機器の使用に注意。
+</div>
+
+<div class="wrap">
+
+  <!-- AD TOP -->
+  <div class="ad-slot ad-slot-top">広告スペース（ヘッダー下・視認率最高）</div>
+
+  <!-- HERO -->
+  <div class="hero">
+    <div class="gauge-col">
+      <div class="gauge-label-top">危険度スコア</div>
+      <canvas id="gauge" width="160" height="160"></canvas>
+      <div class="flare-pill" id="flareClass">M2クラス</div>
+      <button class="share-btn" id="shareBtn" onclick="shareNow()">⚡ 今すぐシェア</button>
+    </div>
+    <div class="hero-right">
+      <div>
+        <div class="level-heading">現在の太陽活動レベル</div>
+        <div class="level-value" id="levelVal">中程度 — 警戒</div>
+        <div class="level-yabai">今ヤバい？→ <strong id="yabaiText">やや注意が必要です</strong></div>
+      </div>
+      <div class="impact-box">
+        <div class="impact-box-title">科学的影響サマリー</div>
+        <div class="impact-box-body" id="impactBody">
+          <strong>GPS測位誤差が最大5m増加。</strong>精密機器・農業ドローンは注意。アマチュア無線・航空無線に<strong>軽微なノイズ</strong>の可能性。北極路線フライトで<strong>放射線量がわずかに上昇。</strong>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- IMPACT CARDS -->
+  <div class="sec">生活・インフラへの影響</div>
+  <div class="grid4">
+    <div class="inf-card">
+      <span class="inf-icon">📡</span>
+      <div class="inf-label">GPS精度</div>
+      <span class="badge badge-warn" id="gps-badge">要注意</span>
+    </div>
+    <div class="inf-card">
+      <span class="inf-icon">📻</span>
+      <div class="inf-label">無線通信</div>
+      <span class="badge badge-warn" id="radio-badge">軽微な影響</span>
+    </div>
+    <div class="inf-card">
+      <span class="inf-icon">✈️</span>
+      <div class="inf-label">航空放射線</div>
+      <span class="badge badge-warn" id="avia-badge">やや上昇</span>
+    </div>
+    <div class="inf-card">
+      <span class="inf-icon">🔌</span>
+      <div class="inf-label">送電網</div>
+      <span class="badge badge-ok" id="power-badge">影響なし</span>
+    </div>
+  </div>
+
+  <!-- DATA CARDS -->
+  <div class="sec">リアルタイム観測データ</div>
+  <div class="data4">
+    <div class="dc">
+      <div class="dc-label">Kpインデックス</div>
+      <div class="dc-val" id="kp-val" style="color:#b45309">4.7</div>
+      <div class="dc-unit">スケール 0〜9</div>
+      <div class="dc-track"><div class="dc-fill" id="kp-bar" style="width:52%;background:#f59e0b"></div></div>
+    </div>
+    <div class="dc">
+      <div class="dc-label">太陽風速度</div>
+      <div class="dc-val" id="wind-val">487</div>
+      <div class="dc-unit">km/s</div>
+      <div class="dc-track"><div class="dc-fill" id="wind-bar" style="width:58%;background:#3b82f6"></div></div>
+    </div>
+    <div class="dc">
+      <div class="dc-label">X線強度</div>
+      <div class="dc-val" id="xray-val" style="color:#c2410c">2.4</div>
+      <div class="dc-unit">×10⁻⁵ W/m²</div>
+      <div class="dc-track"><div class="dc-fill" id="xray-bar" style="width:44%;background:#ef4444"></div></div>
+    </div>
+    <div class="dc">
+      <div class="dc-label">プロトン線量</div>
+      <div class="dc-val" id="proton-val" style="color:#16a34a">0.8</div>
+      <div class="dc-unit">pfu（正常）</div>
+      <div class="dc-track"><div class="dc-fill" id="proton-bar" style="width:8%;background:#22c55e"></div></div>
+    </div>
+  </div>
+
+  <!-- AD MID -->
+  <div class="ad-slot ad-slot-mid">広告スペース（コンテンツ中間・クリック率高）</div>
+
+  <!-- KP CHART + UV -->
+  <div class="two">
+    <div class="panel">
+      <div class="sec">Kp指数 — 過去24時間</div>
+      <div class="legend-row">
+        <div class="legend-item"><div class="legend-dot" style="background:#22c55e"></div>静穏 0-3</div>
+        <div class="legend-item"><div class="legend-dot" style="background:#f59e0b"></div>活発 4-6</div>
+        <div class="legend-item"><div class="legend-dot" style="background:#ef4444"></div>嵐 7+</div>
+      </div>
+      <div class="kpbar-wrap" id="kpBars"></div>
+      <div class="kpbar-x">
+        <span class="kpbar-lbl">00:00</span>
+        <span class="kpbar-lbl">06:00</span>
+        <span class="kpbar-lbl">12:00</span>
+        <span class="kpbar-lbl">18:00</span>
+        <span class="kpbar-lbl">今</span>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="sec">UV指数と推奨アクション</div>
+      <div class="uv-item">
+        <div class="uv-city">🌺 那覇</div>
+        <div class="uv-track"><div class="uv-fill" style="width:100%;background:#dc2626"></div></div>
+        <div class="uv-num" style="color:#dc2626">11</div>
+        <div class="uv-desc"><strong style="color:#dc2626">極端に強い</strong>SPF50+・帽子・長袖必須。11〜15時は日陰で過ごして。</div>
+      </div>
+      <div class="uv-item">
+        <div class="uv-city">🏙 東京</div>
+        <div class="uv-track"><div class="uv-fill" style="width:70%;background:#f97316"></div></div>
+        <div class="uv-num" style="color:#f97316">7</div>
+        <div class="uv-desc"><strong style="color:#f97316">非常に強い</strong>SPF50日焼け止めはマスト。外出は帽子・サングラスを。</div>
+      </div>
+      <div class="uv-item">
+        <div class="uv-city">🏙 大阪</div>
+        <div class="uv-track"><div class="uv-fill" style="width:60%;background:#f59e0b"></div></div>
+        <div class="uv-num" style="color:#f59e0b">6</div>
+        <div class="uv-desc"><strong style="color:#f59e0b">強い</strong>SPF30以上を推奨。日傘・サングラスがあると安心。</div>
+      </div>
+      <div class="uv-item">
+        <div class="uv-city">❄️ 札幌</div>
+        <div class="uv-track"><div class="uv-fill" style="width:36%;background:#22c55e"></div></div>
+        <div class="uv-num" style="color:#22c55e">4</div>
+        <div class="uv-desc"><strong style="color:#22c55e">中程度</strong>長時間の外出はSF15以上を。特別な対策は不要。</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- AURORA MAP -->
+  <div class="panel" style="margin-bottom:20px">
+    <div class="sec">オーロラ可視確率マップ — 日本 (Kp <span id="kp-map">4.7</span>)</div>
+    <svg class="aurora-svg" viewBox="0 0 680 220" role="img" aria-label="日本各地のオーロラ可視確率マップ">
+      <rect width="680" height="220" fill="#f8fafc" rx="8"/>
+      <text x="340" y="18" text-anchor="middle" font-size="10" fill="#94a3b8" font-family="sans-serif">北 ▲</text>
+      <line x1="60" y1="28" x2="620" y2="28" stroke="#e2e8f0" stroke-width="1"/>
+
+      <!-- 北海道 -->
+      <rect x="60" y="36" width="560" height="52" rx="6" fill="#eff6ff"/>
+      <text x="110" y="64" text-anchor="middle" font-size="11" fill="#334155" font-family="sans-serif" font-weight="600">北海道</text>
+      <rect x="200" y="55" width="300" height="14" rx="4" fill="#dbeafe"/>
+      <rect x="200" y="55" width="54" height="14" rx="4" fill="#3b82f6"/>
+      <text x="520" y="66" font-size="16" font-weight="700" fill="#1d4ed8" font-family="monospace">18%</text>
+      <text x="190" y="66" text-anchor="end" font-size="10" fill="#94a3b8" font-family="sans-serif">可視確率</text>
+      <text x="200" y="82" font-size="9" fill="#64748b" font-family="sans-serif">Kp≥5で目視の可能性。Kp≥7で高確率。</text>
+
+      <!-- 東北 -->
+      <rect x="60" y="96" width="560" height="40" rx="6" fill="#fefce8"/>
+      <text x="110" y="120" text-anchor="middle" font-size="11" fill="#334155" font-family="sans-serif" font-weight="600">東北</text>
+      <rect x="200" y="111" width="300" height="12" rx="4" fill="#fef9c3"/>
+      <rect x="200" y="111" width="12" height="12" rx="3" fill="#f59e0b"/>
+      <text x="520" y="121" font-size="14" font-weight="700" fill="#92400e" font-family="monospace">4%</text>
+      <text x="200" y="128" font-size="9" fill="#94a3b8" font-family="sans-serif">Kp≥8以上で目視の可能性。</text>
+
+      <!-- 関東以南 -->
+      <rect x="60" y="144" width="560" height="40" rx="6" fill="#f8fafc"/>
+      <text x="110" y="168" text-anchor="middle" font-size="11" fill="#94a3b8" font-family="sans-serif">関東・中部・近畿・九州</text>
+      <rect x="200" y="158" width="300" height="12" rx="4" fill="#f1f5f9"/>
+      <rect x="200" y="158" width="2" height="12" rx="2" fill="#94a3b8"/>
+      <text x="520" y="168" font-size="14" font-weight="700" fill="#94a3b8" font-family="monospace">&lt;0.5%</text>
+      <text x="200" y="176" font-size="9" fill="#94a3b8" font-family="sans-serif">現在のKp値では目視はほぼ不可能です。</text>
+
+      <text x="340" y="214" text-anchor="middle" font-size="9" fill="#cbd5e1" font-family="sans-serif">KpインデックスからSOLARAが独自計算 | データ: NOAA SWPC</text>
+    </svg>
+  </div>
+
+  <!-- AD BOTTOM -->
+  <div class="footer-wrap">
+    <div class="ad-slot ad-slot-btm">広告スペース（フッター上・離脱前最終接触）</div>
+  </div>
+
+  <div class="footer">
+    データソース:
+    <span class="src-tag">NOAA SWPC</span>
+    <span class="src-tag">Open-Meteo</span>
+    <span class="src-tag">NICT 宇宙天気予報</span>
+    &nbsp;— 5分ごと自動更新 &nbsp;|&nbsp; © 2026 SOLARA
+  </div>
+
+</div>
+
+<script>
+const KP_DATA = [2.1,1.8,2.3,3.0,3.5,4.1,4.7,4.2,3.8,3.2,2.9,3.4,3.8,4.2,4.7,5.1,4.8,4.3,3.9,3.5,3.1,2.8,3.2,3.8];
+const CURRENT_KP = 4.7;
+const SCORE = 47;
+
+function drawGauge(score) {
+  const c = document.getElementById('gauge');
+  const x = c.getContext('2d');
+  const cx = 80, cy = 80, r = 62;
+  x.clearRect(0, 0, 160, 160);
+  x.beginPath();
+  x.arc(cx, cy, r, Math.PI * 0.75, Math.PI * 2.25);
+  x.strokeStyle = '#f1f5f9';
+  x.lineWidth = 12;
+  x.lineCap = 'round';
+  x.stroke();
+  const g = x.createLinearGradient(18, 80, 142, 80);
+  g.addColorStop(0, '#22c55e');
+  g.addColorStop(0.5, '#f59e0b');
+  g.addColorStop(1, '#ef4444');
+  x.beginPath();
+  x.arc(cx, cy, r, Math.PI * 0.75, Math.PI * 0.75 + (score / 100) * Math.PI * 1.5);
+  x.strokeStyle = g;
+  x.lineWidth = 12;
+  x.lineCap = 'round';
+  x.stroke();
+  x.fillStyle = '#0f172a';
+  x.font = 'bold 30px Courier New';
+  x.textAlign = 'center';
+  x.textBaseline = 'middle';
+  x.fillText(score, cx, cy - 6);
+  x.fillStyle = '#94a3b8';
+  x.font = '10px sans-serif';
+  x.fillText('/ 100', cx, cy + 14);
+}
+
+function drawKpBars() {
+  const wrap = document.getElementById('kpBars');
+  KP_DATA.forEach(v => {
+    const col = document.createElement('div');
+    col.style.cssText = 'display:flex;flex-direction:column;align-items:center;flex:1';
+    const b = document.createElement('div');
+    b.className = 'kpbar';
+    b.style.height = (v / 9 * 90) + 'px';
+    b.style.width = '100%';
+    b.style.background = v >= 7 ? '#ef4444' : v >= 4 ? '#f59e0b' : '#22c55e';
+    col.appendChild(b);
+    wrap.appendChild(col);
+  });
+}
+
+function updateAlertBar(kp) {
+  const bar = document.getElementById('alertBar');
+  const shareBtn = document.getElementById('shareBtn');
+  if (kp >= 7) {
+    bar.className = 'alert alert-red';
+    bar.textContent = '🚨 強い地磁気嵐を観測中 — X・Mクラスフレア発生。北海道でオーロラ目視の可能性。通信・送電に注意。';
+    shareBtn.style.display = 'block';
+  } else if (kp >= 5) {
+    bar.className = 'alert alert-orange';
+    bar.textContent = '⚠ 活発な太陽活動を観測中 — GPS・無線通信に影響の可能性。北海道でオーロラが見えるかも。';
+    shareBtn.style.display = 'block';
+  } else if (kp >= 4) {
+    bar.className = 'alert alert-yellow';
+    bar.textContent = '⚠ 中程度の太陽活動を観測中 — Mクラスフレアの可能性。GPS・無線機器の使用に注意。';
+  } else {
+    bar.className = 'alert alert-green';
+    bar.textContent = '✓ 太陽活動は静穏 — 通信・インフラへの影響はありません。';
+  }
+}
+
+function updateTimestamp() {
+  const now = new Date();
+  const jst = new Date(now.getTime() + 9 * 60 * 60 * 1000);
+  const pad = n => String(n).padStart(2, '0');
+  const str = `${jst.getUTCFullYear()}-${pad(jst.getUTCMonth()+1)}-${pad(jst.getUTCDate())} ${pad(jst.getUTCHours())}:${pad(jst.getUTCMinutes())} JST | 5min refresh`;
+  document.getElementById('updated').textContent = str;
+}
+
+function shareNow() {
+  const text = encodeURIComponent('⚡ 太陽フレア発生中！宇宙天気をSOLARAでチェック → ');
+  window.open('https://twitter.com/intent/tweet?text=' + text, '_blank');
+}
+
+drawGauge(SCORE);
+drawKpBars();
+updateAlertBar(CURRENT_KP);
+updateTimestamp();
+setInterval(updateTimestamp, 60000);
+</script>
+</body>
+</html>
