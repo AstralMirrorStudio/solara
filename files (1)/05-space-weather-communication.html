@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>宇宙天気が通信障害を引き起こすメカニズム | SOLARA</title>
+<meta name="description" content="太陽フレアや地磁気嵐がGPS・航空無線・インターネット・送電線に与える影響のメカニズムをわかりやすく解説。">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,'Inter','Helvetica Neue',sans-serif;background:#f0f2f5;color:#1a2332;font-size:15px;line-height:1.8}
+.topbar{background:#fff;border-bottom:1px solid #e2e8f0;padding:0 24px;height:54px;display:flex;align-items:center;position:sticky;top:0;z-index:100}
+.logo{font-size:20px;font-weight:800;letter-spacing:-0.5px;color:#0f172a}
+.logo em{color:#e55a2b;font-style:normal}
+.logo-sub{font-size:10px;color:#94a3b8;font-weight:400;margin-left:8px;letter-spacing:0.8px;text-transform:uppercase}
+.wrap{max-width:720px;margin:0 auto;padding:40px 16px}
+.breadcrumb{font-size:12px;color:#94a3b8;margin-bottom:24px}
+.breadcrumb a{color:#3b82f6;text-decoration:none}
+.tag{display:inline-block;background:#eff6ff;color:#1d4ed8;font-size:11px;font-weight:600;padding:3px 10px;border-radius:20px;margin-bottom:16px}
+h1{font-size:28px;font-weight:700;color:#0f172a;line-height:1.4;margin-bottom:12px}
+.meta{font-size:12px;color:#94a3b8;margin-bottom:32px;padding-bottom:24px;border-bottom:1px solid #e2e8f0}
+h2{font-size:20px;font-weight:700;color:#0f172a;margin:36px 0 14px;padding-left:12px;border-left:3px solid #3b82f6}
+h3{font-size:16px;font-weight:600;color:#334155;margin:20px 0 8px}
+p{margin-bottom:16px;color:#334155}
+.mechanism{display:flex;flex-direction:column;gap:1px;margin:24px 0;background:#e2e8f0;border-radius:8px;overflow:hidden}
+.mech-step{background:#fff;padding:16px 20px;display:grid;grid-template-columns:40px 1fr;gap:14px;align-items:start}
+.mech-num{width:36px;height:36px;background:#3b82f6;color:#fff;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;flex-shrink:0}
+.mech-title{font-size:14px;font-weight:600;color:#0f172a;margin-bottom:4px}
+.mech-body{font-size:13px;color:#64748b;line-height:1.5}
+.case-box{background:#fef2f2;border:1px solid #fecaca;border-radius:8px;padding:16px 20px;margin:24px 0}
+.case-title{font-size:13px;font-weight:600;color:#b91c1c;margin-bottom:8px}
+.case-body{font-size:13px;color:#7f1d1d;line-height:1.6}
+.callout{background:#eff6ff;border:1px solid #bfdbfe;border-radius:8px;padding:16px 20px;margin:24px 0}
+.callout-title{font-size:12px;font-weight:600;color:#1d4ed8;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:8px}
+.callout p{margin:0;color:#1e3a5f;font-size:14px}
+.back-btn{display:inline-block;background:#0f172a;color:#fff;text-decoration:none;padding:10px 24px;border-radius:6px;font-size:14px;font-weight:500;margin-top:40px}
+.footer{text-align:center;font-size:11px;color:#94a3b8;padding:32px 0;margin-top:40px;border-top:1px solid #e2e8f0}
+.ad-slot{background:#f8fafc;border:1px dashed #cbd5e1;border-radius:8px;height:80px;display:flex;align-items:center;justify-content:center;margin:32px 0;color:#94a3b8;font-size:10px;letter-spacing:1px;text-transform:uppercase}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <a href="../index.html" style="display:flex;align-items:baseline;gap:2px;text-decoration:none">
+    <span class="logo">SOL<em>AR</em>A</span>
+    <span class="logo-sub">Space Weather Japan</span>
+  </a>
+</div>
+
+<div class="wrap">
+  <div class="breadcrumb"><a href="../index.html">ホーム</a> › ブログ › 宇宙天気と通信障害</div>
+  <div class="tag">しくみを知る</div>
+  <h1>宇宙天気が通信障害を<br>引き起こすメカニズム</h1>
+  <div class="meta">2026年5月5日 &nbsp;|&nbsp; SOLARA編集部 &nbsp;|&nbsp; 読了時間：約5分</div>
+
+  <div class="ad-slot">広告</div>
+
+  <p>太陽フレアや地磁気嵐が「通信障害を起こす」と聞いても、なぜ宇宙の出来事が地上の通信に影響するのかピンとこない人は多いでしょう。この記事では、そのメカニズムをステップごとにわかりやすく解説します。</p>
+
+  <h2>太陽から地球まで：影響の連鎖</h2>
+
+  <div class="mechanism">
+    <div class="mech-step">
+      <div class="mech-num">1</div>
+      <div>
+        <div class="mech-title">太陽でフレア発生</div>
+        <div class="mech-body">太陽の磁場エネルギーが爆発的に解放。強力なX線・紫外線・高エネルギー粒子が宇宙空間に放出される。X線は光速で約8分後に地球に到達。</div>
+      </div>
+    </div>
+    <div class="mech-step">
+      <div class="mech-num">2</div>
+      <div>
+        <div class="mech-title">電離層が乱れる</div>
+        <div class="mech-body">X線が地球の電離層（高度60〜1000km）に衝突し、電子密度が急増。電離層は無線電波の通路になっているため、この乱れが通信障害の直接原因となる。</div>
+      </div>
+    </div>
+    <div class="mech-step">
+      <div class="mech-num">3</div>
+      <div>
+        <div class="mech-title">CME（コロナ質量放出）が到達</div>
+        <div class="mech-body">フレアに伴って放出されたCMEはプラズマの塊。太陽風に乗って1〜3日後に地球に到達。地球の磁気圏を圧縮・変形させる。</div>
+      </div>
+    </div>
+    <div class="mech-step">
+      <div class="mech-num">4</div>
+      <div>
+        <div class="mech-title">地磁気嵐が発生</div>
+        <div class="mech-body">CMEが地球の磁気圏と衝突し、地磁気嵐（Kp5以上）が発生。地磁気の変動が送電線・パイプラインに誘導電流を生じさせる。</div>
+      </div>
+    </div>
+    <div class="mech-step">
+      <div class="mech-num">5</div>
+      <div>
+        <div class="mech-title">インフラへの影響</div>
+        <div class="mech-body">GPS誤差・短波通信障害・航空無線ノイズ・送電設備への誘導電流障害が発生。強い嵐では停電や衛星障害も起こりうる。</div>
+      </div>
+    </div>
+  </div>
+
+  <h2>具体的な影響と事例</h2>
+
+  <h3>GPS・測位への影響</h3>
+  <p>GPSは衛星からの電波が電離層を通過して受信機に届く仕組みです。電離層の電子密度が乱れると、電波の伝播速度や方向が変化し測位誤差が生じます。強いフレア時には誤差が数十メートル以上になることもあります。</p>
+
+  <h3>航空・船舶通信への影響</h3>
+  <p>航空機や船舶が使用する短波通信（HF通信）は電離層を反射して遠距離通信を行います。電離層が乱れると電波が吸収・散乱され、通信が困難になります。特に北極圏を飛行する便は影響を受けやすく、迂回ルートを選択することがあります。</p>
+
+  <div class="case-box">
+    <div class="case-title">歴史的事例：1989年ケベック大停電</div>
+    <div class="case-body">1989年3月、X15クラスの大フレアに伴う地磁気嵐（Kp9）でカナダ・ケベック州の送電システムが大きな誘導電流にさらされ、変圧器が次々と過負荷で焼損。約600万人が9時間にわたって停電する大規模障害が発生した。</div>
+  </div>
+
+  <h2>私たちにできる備え</h2>
+  <p>宇宙天気による通信障害は予測できます。NOAAは数日先のフレア発生確率を公表しており、SOLARAではそのデータをリアルタイムで表示しています。</p>
+
+  <div class="callout">
+    <div class="callout-title">宇宙天気への備え</div>
+    <p>・重要なGPS作業（測量・精密農業）は太陽活動が静穏な日に行う<br>・Kp7以上の予報が出た際は、精密機器のバックアップ手段を用意する<br>・SOLARAで毎日の宇宙天気をチェックする習慣をつける</p>
+  </div>
+
+  <div class="ad-slot">広告</div>
+
+  <a href="../index.html" class="back-btn">← 今日の宇宙天気をリアルタイムで確認する</a>
+
+  <div class="footer">© 2026 SOLARA — Space Weather Japan</div>
+</div>
+
+</body>
+</html>

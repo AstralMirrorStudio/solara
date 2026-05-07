@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Kp指数って何？地磁気嵐の読み方ガイド | SOLARA</title>
+<meta name="description" content="Kp指数とは何か、0〜9のスケールの意味、地磁気嵐の影響をわかりやすく解説。オーロラが見える条件も紹介。">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,'Inter','Helvetica Neue',sans-serif;background:#f0f2f5;color:#1a2332;font-size:15px;line-height:1.8}
+.topbar{background:#fff;border-bottom:1px solid #e2e8f0;padding:0 24px;height:54px;display:flex;align-items:center;position:sticky;top:0;z-index:100}
+.logo{font-size:20px;font-weight:800;letter-spacing:-0.5px;color:#0f172a;text-decoration:none}
+.logo em{color:#e55a2b;font-style:normal}
+.logo-sub{font-size:10px;color:#94a3b8;font-weight:400;margin-left:8px;letter-spacing:0.8px;text-transform:uppercase}
+.wrap{max-width:720px;margin:0 auto;padding:40px 16px}
+.breadcrumb{font-size:12px;color:#94a3b8;margin-bottom:24px}
+.breadcrumb a{color:#3b82f6;text-decoration:none}
+.tag{display:inline-block;background:#f0fdf4;color:#15803d;font-size:11px;font-weight:600;padding:3px 10px;border-radius:20px;margin-bottom:16px}
+h1{font-size:28px;font-weight:700;color:#0f172a;line-height:1.4;margin-bottom:12px}
+.meta{font-size:12px;color:#94a3b8;margin-bottom:32px;padding-bottom:24px;border-bottom:1px solid #e2e8f0}
+h2{font-size:20px;font-weight:700;color:#0f172a;margin:36px 0 14px;padding-left:12px;border-left:3px solid #22c55e}
+p{margin-bottom:16px;color:#334155}
+.kp-scale{display:flex;flex-direction:column;gap:8px;margin:24px 0}
+.kp-row{display:grid;grid-template-columns:50px 1fr 120px;gap:12px;align-items:center;background:#fff;border:1px solid #e2e8f0;border-radius:8px;padding:12px 16px}
+.kp-num{font-size:22px;font-weight:700;font-family:monospace;text-align:center}
+.kp-bar-bg{height:8px;background:#f1f5f9;border-radius:4px;overflow:hidden}
+.kp-bar-fill{height:8px;border-radius:4px}
+.kp-label{font-size:12px;font-weight:600;text-align:right}
+.callout{background:#fffbeb;border:1px solid #fde68a;border-radius:8px;padding:16px 20px;margin:24px 0}
+.callout-title{font-size:12px;font-weight:600;color:#92400e;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:8px}
+.callout p{margin:0;color:#78350f;font-size:14px}
+.back-btn{display:inline-block;background:#0f172a;color:#fff;text-decoration:none;padding:10px 24px;border-radius:6px;font-size:14px;font-weight:500;margin-top:40px}
+.footer{text-align:center;font-size:11px;color:#94a3b8;padding:32px 0;margin-top:40px;border-top:1px solid #e2e8f0}
+.ad-slot{background:#f8fafc;border:1px dashed #cbd5e1;border-radius:8px;height:80px;display:flex;align-items:center;justify-content:center;margin:32px 0;color:#94a3b8;font-size:10px;letter-spacing:1px;text-transform:uppercase}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <a href="../index.html" style="display:flex;align-items:baseline;gap:2px;text-decoration:none">
+    <span class="logo">SOL<em>AR</em>A</span>
+    <span class="logo-sub">Space Weather Japan</span>
+  </a>
+</div>
+
+<div class="wrap">
+  <div class="breadcrumb"><a href="../index.html">ホーム</a> › ブログ › Kp指数とは</div>
+  <div class="tag">データの読み方</div>
+  <h1>Kp指数って何？<br>地磁気嵐の読み方完全ガイド</h1>
+  <div class="meta">2026年5月2日 &nbsp;|&nbsp; SOLARA編集部 &nbsp;|&nbsp; 読了時間：約4分</div>
+
+  <div class="ad-slot">広告</div>
+
+  <p>SOLARAのダッシュボードに表示される「Kp指数」。この数値が何を意味するのか、どの値になったら注意が必要なのかを解説します。</p>
+
+  <h2>Kp指数とは</h2>
+  <p>Kp指数（Planetary K-index）は、地球の地磁気活動の乱れを0〜9のスケールで表した指標です。NOAAが3時間ごとに更新しており、世界中の磁気観測所のデータを統合して算出されます。数値が高いほど地磁気が激しく乱れていることを意味します。</p>
+
+  <h2>Kp指数スケール早見表</h2>
+  <div class="kp-scale">
+    <div class="kp-row">
+      <div class="kp-num" style="color:#22c55e">0-1</div>
+      <div><div class="kp-bar-bg"><div class="kp-bar-fill" style="width:11%;background:#22c55e"></div></div><div style="font-size:12px;color:#64748b;margin-top:4px">静穏 — 太陽活動は穏やか</div></div>
+      <div class="kp-label" style="color:#22c55e">影響なし</div>
+    </div>
+    <div class="kp-row">
+      <div class="kp-num" style="color:#84cc16">2-3</div>
+      <div><div class="kp-bar-bg"><div class="kp-bar-fill" style="width:33%;background:#84cc16"></div></div><div style="font-size:12px;color:#64748b;margin-top:4px">軽微 — 通常の状態</div></div>
+      <div class="kp-label" style="color:#84cc16">ほぼ問題なし</div>
+    </div>
+    <div class="kp-row">
+      <div class="kp-num" style="color:#f59e0b">4-5</div>
+      <div><div class="kp-bar-bg"><div class="kp-bar-fill" style="width:55%;background:#f59e0b"></div></div><div style="font-size:12px;color:#64748b;margin-top:4px">活発 — G1地磁気嵐レベル</div></div>
+      <div class="kp-label" style="color:#f59e0b">GPS注意</div>
+    </div>
+    <div class="kp-row">
+      <div class="kp-num" style="color:#f97316">6</div>
+      <div><div class="kp-bar-bg"><div class="kp-bar-fill" style="width:66%;background:#f97316"></div></div><div style="font-size:12px;color:#64748b;margin-top:4px">強い — G2地磁気嵐レベル</div></div>
+      <div class="kp-label" style="color:#f97316">北海道でオーロラ</div>
+    </div>
+    <div class="kp-row">
+      <div class="kp-num" style="color:#ef4444">7-8</div>
+      <div><div class="kp-bar-bg"><div class="kp-bar-fill" style="width:83%;background:#ef4444"></div></div><div style="font-size:12px;color:#64748b;margin-top:4px">激しい — G3〜G4地磁気嵐</div></div>
+      <div class="kp-label" style="color:#ef4444">通信・送電影響</div>
+    </div>
+    <div class="kp-row">
+      <div class="kp-num" style="color:#b91c1c">9</div>
+      <div><div class="kp-bar-bg"><div class="kp-bar-fill" style="width:100%;background:#b91c1c"></div></div><div style="font-size:12px;color:#64748b;margin-top:4px">極端 — G5地磁気嵐（最大級）</div></div>
+      <div class="kp-label" style="color:#b91c1c">大規模障害の恐れ</div>
+    </div>
+  </div>
+
+  <h2>オーロラが見える条件</h2>
+  <p>Kp指数はオーロラの可視範囲とも密接に関係しています。一般的に、Kp値が高いほど低緯度でもオーロラが観測できます。</p>
+
+  <div class="callout">
+    <div class="callout-title">日本でオーロラが見える目安</div>
+    <p>Kp5以上 → 北海道北部で目視の可能性<br>Kp6以上 → 北海道全域で観測可能<br>Kp8以上 → 東北地方でも目視の可能性<br>Kp9 → 関東以南でも稀に目視可能（歴史的事例あり）</p>
+  </div>
+
+  <h2>SOLARAでのKp指数の見方</h2>
+  <p>SOLARAのダッシュボードでは、Kp指数をリアルタイムで表示するとともに、過去24時間の推移グラフで確認できます。Kp5を超えると自動的に警告バナーが表示され、Kp7以上では「今すぐシェア」ボタンが出現します。</p>
+
+  <div class="ad-slot">広告</div>
+
+  <a href="../index.html" class="back-btn">← 今のKp指数をリアルタイムで確認する</a>
+
+  <div class="footer">© 2026 SOLARA — Space Weather Japan</div>
+</div>
+
+</body>
+</html>
