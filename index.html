@@ -238,29 +238,29 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Inter','Helvetica Neue',sans-
 
     <div class="panel">
       <div class="sec">UV指数と推奨アクション</div>
-      <div class="uv-item">
+      <div class="uv-item" data-uv="naha">
         <div class="uv-city">🌺 那覇</div>
         <div class="uv-track"><div class="uv-fill" style="width:100%;background:#dc2626"></div></div>
         <div class="uv-num" style="color:#dc2626">11</div>
-        <div class="uv-desc"><strong style="color:#dc2626">極端に強い</strong>SPF50+・帽子・長袖必須。11〜15時は日陰で過ごして。</div>
+        <div class="uv-desc"><strong class="uv-level" style="color:#dc2626;display:block">極端に強い</strong><span class="uv-advice">SPF50+・帽子・長袖必須。11〜15時は日陰で過ごして。</span></div>
       </div>
-      <div class="uv-item">
+      <div class="uv-item" data-uv="tokyo">
         <div class="uv-city">🏙 東京</div>
         <div class="uv-track"><div class="uv-fill" style="width:70%;background:#f97316"></div></div>
         <div class="uv-num" style="color:#f97316">7</div>
-        <div class="uv-desc"><strong style="color:#f97316">非常に強い</strong>SPF50日焼け止めはマスト。外出は帽子・サングラスを。</div>
+        <div class="uv-desc"><strong class="uv-level" style="color:#f97316;display:block">非常に強い</strong><span class="uv-advice">SPF50日焼け止めはマスト。外出は帽子・サングラスを。</span></div>
       </div>
-      <div class="uv-item">
+      <div class="uv-item" data-uv="osaka">
         <div class="uv-city">🏙 大阪</div>
         <div class="uv-track"><div class="uv-fill" style="width:60%;background:#f59e0b"></div></div>
         <div class="uv-num" style="color:#f59e0b">6</div>
-        <div class="uv-desc"><strong style="color:#f59e0b">強い</strong>SPF30以上を推奨。日傘・サングラスがあると安心。</div>
+        <div class="uv-desc"><strong class="uv-level" style="color:#f59e0b;display:block">強い</strong><span class="uv-advice">SPF30以上を推奨。日傘・サングラスがあると安心。</span></div>
       </div>
-      <div class="uv-item">
+      <div class="uv-item" data-uv="sapporo">
         <div class="uv-city">❄️ 札幌</div>
         <div class="uv-track"><div class="uv-fill" style="width:36%;background:#22c55e"></div></div>
         <div class="uv-num" style="color:#22c55e">4</div>
-        <div class="uv-desc"><strong style="color:#22c55e">中程度</strong>長時間の外出はSF15以上を。特別な対策は不要。</div>
+        <div class="uv-desc"><strong class="uv-level" style="color:#22c55e;display:block">中程度</strong><span class="uv-advice">長時間の外出はSPF15以上を。特別な対策は不要。</span></div>
       </div>
     </div>
   </div>
@@ -374,94 +374,319 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Inter','Helvetica Neue',sans-
 </div>
 
 <script>
-const KP_DATA = [2.1,1.8,2.3,3.0,3.5,4.1,4.7,4.2,3.8,3.2,2.9,3.4,3.8,4.2,4.7,5.1,4.8,4.3,3.9,3.5,3.1,2.8,3.2,3.8];
-const CURRENT_KP = 4.7;
-const SCORE = 47;
+// ── FALLBACK DATA（API失敗時に使用）──
+const FALLBACK = {
+  kp: 2.3,
+  kpHistory: [2.1,1.8,2.3,3.0,2.5,2.1,1.9,2.3,2.8,3.2,2.9,2.4,2.1,1.8,2.3,2.9,3.1,2.7,2.3,2.0,1.9,2.2,2.5,2.3],
+  flareClass: 'B5',
+  windSpeed: 380,
+  xray: 0.3,
+  proton: 0.1
+};
 
-function drawGauge(score) {
-  const c = document.getElementById('gauge');
-  const x = c.getContext('2d');
-  const cx = 80, cy = 80, r = 62;
-  x.clearRect(0, 0, 160, 160);
-  x.beginPath();
-  x.arc(cx, cy, r, Math.PI * 0.75, Math.PI * 2.25);
-  x.strokeStyle = '#f1f5f9';
-  x.lineWidth = 12;
-  x.lineCap = 'round';
-  x.stroke();
-  const g = x.createLinearGradient(18, 80, 142, 80);
-  g.addColorStop(0, '#22c55e');
-  g.addColorStop(0.5, '#f59e0b');
-  g.addColorStop(1, '#ef4444');
-  x.beginPath();
-  x.arc(cx, cy, r, Math.PI * 0.75, Math.PI * 0.75 + (score / 100) * Math.PI * 1.5);
-  x.strokeStyle = g;
-  x.lineWidth = 12;
-  x.lineCap = 'round';
-  x.stroke();
-  x.fillStyle = '#0f172a';
-  x.font = 'bold 30px Courier New';
-  x.textAlign = 'center';
-  x.textBaseline = 'middle';
-  x.fillText(score, cx, cy - 6);
-  x.fillStyle = '#94a3b8';
-  x.font = '10px sans-serif';
-  x.fillText('/ 100', cx, cy + 14);
+// ── NOAA API URLs ──
+const NOAA = {
+  kp:    'https://services.swpc.noaa.gov/json/planetary_k_index_1m.json',
+  kp3h:  'https://services.swpc.noaa.gov/products/noaa-planetary-k-index.json',
+  flare: 'https://services.swpc.noaa.gov/json/goes/primary/xray-flares-7-day.json',
+  wind:  'https://services.swpc.noaa.gov/products/solar-wind/plasma-7-day.json',
+  xray:  'https://services.swpc.noaa.gov/json/goes/primary/xray-1-day.json'
+};
+
+// ── UV DATA（Open-Meteo）──
+const UV_CITIES = [
+  { id:'naha',    name:'🌺 那覇', lat:26.21,  lon:127.68 },
+  { id:'tokyo',   name:'🏙 東京', lat:35.69,  lon:139.69 },
+  { id:'osaka',   name:'🏙 大阪', lat:34.69,  lon:135.50 },
+  { id:'sapporo', name:'❄️ 札幌', lat:43.06,  lon:141.35 }
+];
+
+// ── STATE ──
+let currentKp = FALLBACK.kp;
+let currentScore = 23;
+
+// ── UTILS ──
+const $ = id => document.getElementById(id);
+const pad = n => String(n).padStart(2,'0');
+
+function flareToScore(cls) {
+  if (!cls) return 5;
+  const c = cls[0].toUpperCase();
+  const n = parseFloat(cls.slice(1)) || 1;
+  const base = {X:70,M:40,C:15,B:5,A:1}[c] || 5;
+  return Math.min(99, Math.round(base + n * (c==='X'?2.5:c==='M'?2:1)));
 }
 
-function drawKpBars() {
-  const wrap = document.getElementById('kpBars');
-  KP_DATA.forEach(v => {
+function kpToScore(kp) {
+  return Math.min(99, Math.round((kp / 9) * 100));
+}
+
+function uvColor(v) {
+  if (v >= 11) return '#dc2626';
+  if (v >= 8)  return '#f97316';
+  if (v >= 6)  return '#f59e0b';
+  if (v >= 3)  return '#84cc16';
+  return '#22c55e';
+}
+
+function uvAction(v) {
+  if (v >= 11) return {level:'極端に強い', advice:'SPF50+・帽子・長袖必須。11〜15時は日陰で過ごして。'};
+  if (v >= 8)  return {level:'非常に強い', advice:'SPF50日焼け止めはマスト。外出は帽子・サングラスを。'};
+  if (v >= 6)  return {level:'強い',       advice:'SPF30以上を推奨。日傘・サングラスがあると安心。'};
+  if (v >= 3)  return {level:'中程度',     advice:'長時間の外出はSPF15以上を。特別な対策は不要。'};
+  return {level:'低い', advice:'特別な紫外線対策は不要です。'};
+}
+
+// ── DRAW GAUGE ──
+function drawGauge(score) {
+  const c = $('gauge'), x = c.getContext('2d');
+  const cx=80, cy=80, r=62;
+  x.clearRect(0,0,160,160);
+  x.beginPath(); x.arc(cx,cy,r,Math.PI*.75,Math.PI*2.25);
+  x.strokeStyle='#f1f5f9'; x.lineWidth=12; x.lineCap='round'; x.stroke();
+  const g = x.createLinearGradient(18,80,142,80);
+  g.addColorStop(0,'#22c55e'); g.addColorStop(.5,'#f59e0b'); g.addColorStop(1,'#ef4444');
+  x.beginPath(); x.arc(cx,cy,r,Math.PI*.75,Math.PI*.75+(score/100)*Math.PI*1.5);
+  x.strokeStyle=g; x.lineWidth=12; x.lineCap='round'; x.stroke();
+  x.fillStyle='#0f172a'; x.font='bold 30px Courier New';
+  x.textAlign='center'; x.textBaseline='middle'; x.fillText(score,cx,cy-6);
+  x.fillStyle='#94a3b8'; x.font='10px sans-serif'; x.fillText('/ 100',cx,cy+14);
+}
+
+// ── DRAW KP BARS ──
+function drawKpBars(data) {
+  const wrap = $('kpBars');
+  wrap.innerHTML = '';
+  data.forEach(v => {
     const col = document.createElement('div');
     col.style.cssText = 'display:flex;flex-direction:column;align-items:center;flex:1';
     const b = document.createElement('div');
     b.className = 'kpbar';
-    b.style.height = (v / 9 * 90) + 'px';
+    b.style.height = (v/9*90)+'px';
     b.style.width = '100%';
-    b.style.background = v >= 7 ? '#ef4444' : v >= 4 ? '#f59e0b' : '#22c55e';
-    col.appendChild(b);
-    wrap.appendChild(col);
+    b.style.background = v>=7?'#ef4444':v>=4?'#f59e0b':'#22c55e';
+    col.appendChild(b); wrap.appendChild(col);
   });
 }
 
+// ── UPDATE ALERT BAR ──
 function updateAlertBar(kp) {
-  const bar = document.getElementById('alertBar');
-  const shareBtn = document.getElementById('shareBtn');
+  const bar = $('alertBar'), btn = $('shareBtn');
   if (kp >= 7) {
-    bar.className = 'alert alert-red';
-    bar.textContent = '🚨 強い地磁気嵐を観測中 — X・Mクラスフレア発生。北海道でオーロラ目視の可能性。通信・送電に注意。';
-    shareBtn.style.display = 'block';
+    bar.className='alert alert-red';
+    bar.textContent='🚨 強い地磁気嵐を観測中 — 北海道でオーロラ目視の可能性。通信・GPS・送電に影響あり。';
+    btn.style.display='block';
   } else if (kp >= 5) {
-    bar.className = 'alert alert-orange';
-    bar.textContent = '⚠ 活発な太陽活動を観測中 — GPS・無線通信に影響の可能性。北海道でオーロラが見えるかも。';
-    shareBtn.style.display = 'block';
+    bar.className='alert alert-orange';
+    bar.textContent='⚠ 活発な太陽活動を観測中 — GPS・無線通信に影響の可能性。北海道でオーロラが見えるかも。';
+    btn.style.display='block';
   } else if (kp >= 4) {
-    bar.className = 'alert alert-yellow';
-    bar.textContent = '⚠ 中程度の太陽活動を観測中 — Mクラスフレアの可能性。GPS・無線機器の使用に注意。';
+    bar.className='alert alert-yellow';
+    bar.textContent='⚠ 中程度の太陽活動 — GPS精度に軽微な影響の可能性。無線機器の使用に注意。';
   } else {
-    bar.className = 'alert alert-green';
-    bar.textContent = '✓ 太陽活動は静穏 — 通信・インフラへの影響はありません。';
+    bar.className='alert alert-green';
+    bar.textContent='✓ 太陽活動は静穏 — 通信・インフラへの影響はありません。';
   }
 }
 
-function updateTimestamp() {
+// ── UPDATE HERO ──
+function updateHero(kp, flareClass, score) {
+  const levelMap = [
+    [7,'極端に危険 — 大規模地磁気嵐','今すぐ注意が必要です'],
+    [5,'活発 — 要注意レベル','やや注意が必要です'],
+    [4,'中程度 — 警戒','軽微な注意が必要です'],
+    [0,'静穏 — 正常範囲','特別な対策は不要です']
+  ];
+  const [,lv,yb] = levelMap.find(([t])=>kp>=t);
+  $('levelVal').textContent = lv;
+  $('yabaiText').textContent = yb;
+  $('flareClass').textContent = flareClass+'クラス';
+  $('kp-map').textContent = kp.toFixed(1);
+  updateImpactCards(kp);
+  updateImpactText(kp, flareClass);
+  updateAuroraMap(kp);
+}
+
+// ── IMPACT CARDS ──
+function updateImpactCards(kp) {
+  const badges = [
+    {id:'gps-badge',   thresholds:[[7,'危険','badge-danger'],[5,'要注意','badge-alert'],[3,'軽微','badge-warn'],[0,'影響なし','badge-ok']]},
+    {id:'radio-badge', thresholds:[[7,'通信障害','badge-danger'],[5,'影響あり','badge-alert'],[3,'軽微','badge-warn'],[0,'影響なし','badge-ok']]},
+    {id:'avia-badge',  thresholds:[[7,'注意要','badge-alert'],[4,'やや上昇','badge-warn'],[0,'影響なし','badge-ok']]},
+    {id:'power-badge', thresholds:[[8,'誘導電流','badge-danger'],[6,'監視中','badge-warn'],[0,'影響なし','badge-ok']]}
+  ];
+  badges.forEach(({id,thresholds})=>{
+    const [,label,cls] = thresholds.find(([t])=>kp>=t);
+    const el = $(id);
+    el.textContent = label;
+    el.className = 'badge '+cls;
+  });
+}
+
+// ── IMPACT TEXT ──
+function updateImpactText(kp, flare) {
+  const texts = {
+    high: '<strong>GPS測位誤差が最大10m以上増加。</strong>短波ラジオ・航空無線に<strong>通信障害の可能性。</strong>長距離送電線に<strong>誘導電流が発生中。</strong>精密機器の使用は注意。',
+    mid:  '<strong>GPS測位誤差が最大5m増加。</strong>精密機器・農業ドローンは注意。アマチュア無線・航空無線に<strong>軽微なノイズ</strong>の可能性。',
+    low:  '<strong>GPS・通信への影響はほぼなし。</strong>精密測量機器で微小な誤差が生じる場合があります。通常通りの使用で問題ありません。',
+    none: '<strong>太陽活動は静穏です。</strong>通信・GPS・インフラへの影響はありません。通常通りご利用いただけます。'
+  };
+  const key = kp>=7?'high':kp>=4?'mid':kp>=2?'low':'none';
+  $('impactBody').innerHTML = texts[key];
+}
+
+// ── AURORA MAP ──
+function updateAuroraMap(kp) {
+  const hokkaido = Math.min(99, Math.round(kp>=7?80:kp>=5?30:kp>=4?15:kp>=3?5:1));
+  const tohoku   = Math.min(99, Math.round(kp>=8?40:kp>=7?15:kp>=5?4:1));
+  const kanto    = kp>=9?'5%':kp>=8?'1%':'<0.5%';
+  const el = document.querySelector('[data-aurora="hokkaido"]');
+  if (el) el.textContent = hokkaido+'%';
+}
+
+// ── DATA CARDS ──
+function updateDataCards(kp, wind, xray, proton) {
+  $('kp-val').textContent = kp.toFixed(1);
+  $('kp-val').style.color = kp>=7?'#b91c1c':kp>=4?'#b45309':'#15803d';
+  $('kp-bar').style.width = (kp/9*100)+'%';
+  $('kp-bar').style.background = kp>=7?'#ef4444':kp>=4?'#f59e0b':'#22c55e';
+
+  $('wind-val').textContent = Math.round(wind);
+  const windPct = Math.min(100, Math.round(wind/800*100));
+  $('wind-bar').style.width = windPct+'%';
+
+  $('xray-val').textContent = xray.toFixed(1);
+  $('xray-val').style.color = xray>=5?'#b91c1c':xray>=1?'#c2410c':'#15803d';
+  $('xray-bar').style.width = Math.min(100,xray/10*100)+'%';
+
+  $('proton-val').textContent = proton.toFixed(1);
+  $('proton-val').style.color = proton>=10?'#b91c1c':proton>=1?'#b45309':'#16a34a';
+  $('proton-bar').style.width = Math.min(100,proton/100*100)+'%';
+}
+
+// ── UV UPDATE ──
+function updateUV(cityId, value) {
+  const v = Math.round(value);
+  const col = uvColor(v);
+  const {level, advice} = uvAction(v);
+  const el = document.querySelector(`[data-uv="${cityId}"]`);
+  if (!el) return;
+  el.querySelector('.uv-fill').style.width = Math.min(100,v/11*100)+'%';
+  el.querySelector('.uv-fill').style.background = col;
+  el.querySelector('.uv-num').textContent = v;
+  el.querySelector('.uv-num').style.color = col;
+  el.querySelector('.uv-level').textContent = level;
+  el.querySelector('.uv-level').style.color = col;
+  el.querySelector('.uv-advice').textContent = advice;
+}
+
+// ── TIMESTAMP ──
+function updateTimestamp(live=true) {
   const now = new Date();
-  const jst = new Date(now.getTime() + 9 * 60 * 60 * 1000);
-  const pad = n => String(n).padStart(2, '0');
-  const str = `${jst.getUTCFullYear()}-${pad(jst.getUTCMonth()+1)}-${pad(jst.getUTCDate())} ${pad(jst.getUTCHours())}:${pad(jst.getUTCMinutes())} JST | 5min refresh`;
-  document.getElementById('updated').textContent = str;
+  const jst = new Date(now.getTime()+9*60*60*1000);
+  const str = `${jst.getUTCFullYear()}-${pad(jst.getUTCMonth()+1)}-${pad(jst.getUTCDate())} ${pad(jst.getUTCHours())}:${pad(jst.getUTCMinutes())} JST`;
+  $('updated').textContent = str + (live?' | ● LIVE':' | フォールバック');
 }
 
+// ── FETCH NOAA DATA ──
+async function fetchNOAA() {
+  try {
+    const [kpRes, flareRes, windRes, xrayRes] = await Promise.allSettled([
+      fetch(NOAA.kp3h),
+      fetch(NOAA.flare),
+      fetch(NOAA.wind),
+      fetch(NOAA.xray)
+    ]);
+
+    // KP
+    let kpHistory = FALLBACK.kpHistory;
+    let latestKp  = FALLBACK.kp;
+    if (kpRes.status==='fulfilled' && kpRes.value.ok) {
+      const data = await kpRes.value.json();
+      const vals = data.slice(-24).map(r=>parseFloat(r[1])||0);
+      if (vals.length) { kpHistory=vals; latestKp=vals[vals.length-1]; }
+    }
+
+    // FLARE
+    let flareClass = 'B1';
+    if (flareRes.status==='fulfilled' && flareRes.value.ok) {
+      const data = await flareRes.value.json();
+      if (data && data.length) flareClass = data[data.length-1].max_class || 'B1';
+    }
+
+    // WIND
+    let windSpeed = FALLBACK.windSpeed;
+    if (windRes.status==='fulfilled' && windRes.value.ok) {
+      const data = await windRes.value.json();
+      const rows = data.slice(1).filter(r=>parseFloat(r[2])>0);
+      if (rows.length) windSpeed = parseFloat(rows[rows.length-1][2]);
+    }
+
+    // XRAY
+    let xrayVal = FALLBACK.xray;
+    if (xrayRes.status==='fulfilled' && xrayRes.value.ok) {
+      const data = await xrayRes.value.json();
+      if (data && data.length) {
+        const v = parseFloat(data[data.length-1][7]);
+        if (!isNaN(v)) xrayVal = v * 1e5;
+      }
+    }
+
+    const score = Math.max(kpToScore(latestKp), flareToScore(flareClass));
+    currentKp = latestKp;
+    currentScore = score;
+
+    drawGauge(score);
+    drawKpBars(kpHistory);
+    updateAlertBar(latestKp);
+    updateHero(latestKp, flareClass, score);
+    updateDataCards(latestKp, windSpeed, xrayVal, FALLBACK.proton);
+    updateTimestamp(true);
+
+  } catch(e) {
+    console.warn('NOAA fetch failed, using fallback:', e);
+    useFallback();
+  }
+}
+
+// ── FETCH UV（Open-Meteo）──
+async function fetchUV() {
+  for (const city of UV_CITIES) {
+    try {
+      const url = `https://api.open-meteo.com/v1/forecast?latitude=${city.lat}&longitude=${city.lon}&daily=uv_index_max&forecast_days=1&timezone=Asia/Tokyo`;
+      const res = await fetch(url);
+      if (!res.ok) continue;
+      const data = await res.json();
+      const uv = data?.daily?.uv_index_max?.[0];
+      if (uv !== undefined) updateUV(city.id, uv);
+    } catch(e) { console.warn('UV fetch failed for', city.name); }
+  }
+}
+
+// ── FALLBACK ──
+function useFallback() {
+  drawGauge(kpToScore(FALLBACK.kp));
+  drawKpBars(FALLBACK.kpHistory);
+  updateAlertBar(FALLBACK.kp);
+  updateHero(FALLBACK.kp, FALLBACK.flareClass, kpToScore(FALLBACK.kp));
+  updateDataCards(FALLBACK.kp, FALLBACK.windSpeed, FALLBACK.xray, FALLBACK.proton);
+  updateTimestamp(false);
+}
+
+// ── SHARE ──
 function shareNow() {
-  const text = encodeURIComponent('⚡ 太陽フレア発生中！宇宙天気をSOLARAでチェック → ');
-  window.open('https://twitter.com/intent/tweet?text=' + text, '_blank');
+  const kp = currentKp.toFixed(1);
+  const text = encodeURIComponent(`⚡ 太陽活動速報！現在のKp指数: ${kp} — 宇宙天気をSOLARAでチェック → https://astralmirrorstudio.github.io/solara/`);
+  window.open('https://twitter.com/intent/tweet?text='+text, '_blank');
 }
 
-drawGauge(SCORE);
-drawKpBars();
-updateAlertBar(CURRENT_KP);
-updateTimestamp();
-setInterval(updateTimestamp, 60000);
+// ── INIT ──
+useFallback();
+fetchNOAA();
+fetchUV();
+setInterval(fetchNOAA, 5*60*1000);
+setInterval(fetchUV,   10*60*1000);
+setInterval(updateTimestamp.bind(null,true), 60*1000);
 </script>
 </body>
 </html>
